@@ -1,0 +1,99 @@
+services:
+  emqx1:
+    image: ${EMQX_IMAGE}
+    container_name: emqx1
+    hostname: emqx1
+    restart: always
+    environment:
+      EMQX_NODE__NAME: emqx@emqx1
+      EMQX_NODE__COOKIE: ${EMQX_NODE_COOKIE}
+      EMQX_CLUSTER__DISCOVERY_STRATEGY: static
+      EMQX_CLUSTER__STATIC__SEEDS: "${EMQX_CLUSTER_STATIC_SEEDS}"
+      EMQX_ALLOW_ANONYMOUS: "false"
+      EMQX_DASHBOARD__DEFAULT_USERNAME: ${EMQX_DASHBOARD_DEFAULT_USERNAME}
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD_DEFAULT_PASSWORD}
+      EMQX_LISTENERS__SSL__DEFAULT__BIND: 0.0.0.0:8883
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__VERSIONS: '["tlsv1.2"]'
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__CERTFILE: /opt/emqx/etc/certs/cert.pem
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__KEYFILE: /opt/emqx/etc/certs/key.pem
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__VERIFY: verify_none
+    networks:
+      - mqtt-net
+    ports:
+      - "${EMQX1_MQTT_PORT}:1883"
+      - "${EMQX1_MQTTS_PORT}:8883"
+      - "${EMQX1_WS_PORT}:8083"
+      - "${EMQX1_DASHBOARD_PORT}:18083"
+    volumes:
+      - ./certs/${MQTT_SSL_CERT_FILE}:/opt/emqx/etc/certs/cert.pem:ro
+      - ./certs/${MQTT_SSL_KEY_FILE}:/opt/emqx/etc/certs/key.pem:ro
+      - emqx1-data:/opt/emqx/data
+
+  emqx2:
+    image: ${EMQX_IMAGE}
+    container_name: emqx2
+    hostname: emqx2
+    restart: always
+    environment:
+      EMQX_NODE__NAME: emqx@emqx2
+      EMQX_NODE__COOKIE: ${EMQX_NODE_COOKIE}
+      EMQX_CLUSTER__DISCOVERY_STRATEGY: static
+      EMQX_CLUSTER__STATIC__SEEDS: "${EMQX_CLUSTER_STATIC_SEEDS}"
+      EMQX_ALLOW_ANONYMOUS: "false"
+      EMQX_DASHBOARD__DEFAULT_USERNAME: ${EMQX_DASHBOARD_DEFAULT_USERNAME}
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD_DEFAULT_PASSWORD}
+      EMQX_LISTENERS__SSL__DEFAULT__BIND: 0.0.0.0:8883
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__VERSIONS: '["tlsv1.2"]'
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__CERTFILE: /opt/emqx/etc/certs/cert.pem
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__KEYFILE: /opt/emqx/etc/certs/key.pem
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__VERIFY: verify_none
+    networks:
+      - mqtt-net
+    ports:
+      - "${EMQX2_MQTT_PORT}:1883"
+      - "${EMQX2_MQTTS_PORT}:8883"
+      - "${EMQX2_WS_PORT}:8083"
+      - "${EMQX2_DASHBOARD_PORT}:18083"
+    volumes:
+      - ./certs/${MQTT_SSL_CERT_FILE}:/opt/emqx/etc/certs/cert.pem:ro
+      - ./certs/${MQTT_SSL_KEY_FILE}:/opt/emqx/etc/certs/key.pem:ro
+      - emqx2-data:/opt/emqx/data
+
+  emqx3:
+    image: ${EMQX_IMAGE}
+    container_name: emqx3
+    hostname: emqx3
+    restart: always
+    environment:
+      EMQX_NODE__NAME: emqx@emqx3
+      EMQX_NODE__COOKIE: ${EMQX_NODE_COOKIE}
+      EMQX_CLUSTER__DISCOVERY_STRATEGY: static
+      EMQX_CLUSTER__STATIC__SEEDS: "${EMQX_CLUSTER_STATIC_SEEDS}"
+      EMQX_ALLOW_ANONYMOUS: "false"
+      EMQX_DASHBOARD__DEFAULT_USERNAME: ${EMQX_DASHBOARD_DEFAULT_USERNAME}
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD_DEFAULT_PASSWORD}
+      EMQX_LISTENERS__SSL__DEFAULT__BIND: 0.0.0.0:8883
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__VERSIONS: '["tlsv1.2"]'
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__CERTFILE: /opt/emqx/etc/certs/cert.pem
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__KEYFILE: /opt/emqx/etc/certs/key.pem
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__VERIFY: verify_none
+    networks:
+      - mqtt-net
+    ports:
+      - "${EMQX3_MQTT_PORT}:1883"
+      - "${EMQX3_MQTTS_PORT}:8883"
+      - "${EMQX3_WS_PORT}:8083"
+      - "${EMQX3_DASHBOARD_PORT}:18083"
+    volumes:
+      - ./certs/${MQTT_SSL_CERT_FILE}:/opt/emqx/etc/certs/cert.pem:ro
+      - ./certs/${MQTT_SSL_KEY_FILE}:/opt/emqx/etc/certs/key.pem:ro
+      - emqx3-data:/opt/emqx/data
+
+networks:
+  mqtt-net:
+    driver: bridge
+
+volumes:
+  emqx1-data:
+  emqx2-data:
+  emqx3-data:
