@@ -104,6 +104,27 @@ EMQX container logs do not show every published MQTT message by default, so not 
 - enable EMQX trace for a specific client or topic in the dashboard
 - use EMQX metrics/dashboard views for connection and message counters
 
+### Docker logger service
+
+This project also includes a `mqtt-logger` service that subscribes to MQTT topics and writes received messages to its own container logs.
+
+Set these values in your local `.env`:
+
+- `MQTT_LOGGER_HOST=emqx1.mqtt.local`
+- `MQTT_LOGGER_PORT=1883`
+- `MQTT_LOGGER_USERNAME=admin`
+- `MQTT_LOGGER_PASSWORD=<your-mqtt-password>`
+- `MQTT_LOGGER_TOPIC=#`
+
+Then restart the stack and inspect the logger output:
+
+```bash
+docker compose up -d
+docker logs -f mqtt-logger
+```
+
+The logger shows topic and payload as received by the subscriber. It is useful for traffic visibility, but it does not guarantee full broker-side publisher identity in the logs.
+
 ## MQTT user authentication
 
 `EMQX_ALLOW_ANONYMOUS=false` blocks anonymous clients, but EMQX still needs an authenticator configured for MQTT usernames/passwords.
