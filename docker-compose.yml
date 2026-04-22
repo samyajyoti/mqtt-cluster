@@ -120,20 +120,10 @@ services:
     depends_on:
       emqx1:
         condition: service_healthy
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      while true; do
-        mosquitto_sub
-        -h "$${MQTT_LOGGER_HOST}"
-        -p "$${MQTT_LOGGER_PORT}"
-        -u "$${MQTT_LOGGER_USERNAME}"
-        -P "$${MQTT_LOGGER_PASSWORD}"
-        -t "$${MQTT_LOGGER_TOPIC}"
-        -i "$${MQTT_LOGGER_CLIENT_ID}"
-        -v;
-        echo "mqtt-logger disconnected, reconnecting in 2s";
-        sleep 2;
-      done
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - while true; do mosquitto_sub -h "$${MQTT_LOGGER_HOST}" -p "$${MQTT_LOGGER_PORT}" -u "$${MQTT_LOGGER_USERNAME}" -P "$${MQTT_LOGGER_PASSWORD}" -t "$${MQTT_LOGGER_TOPIC}" -i "$${MQTT_LOGGER_CLIENT_ID}" -v; echo "mqtt-logger disconnected, reconnecting in 2s"; sleep 2; done
     environment:
       MQTT_LOGGER_HOST: ${MQTT_LOGGER_HOST}
       MQTT_LOGGER_PORT: ${MQTT_LOGGER_PORT}
