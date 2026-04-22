@@ -4,6 +4,12 @@ services:
     container_name: emqx1
     hostname: emqx1.mqtt.local
     restart: always
+    healthcheck:
+      test: ["CMD", "/opt/emqx/bin/emqx", "ctl", "status"]
+      interval: 30s
+      timeout: 25s
+      retries: 5
+      start_period: 60s
     environment:
       EMQX_NODE__NAME: emqx@emqx1.mqtt.local
       EMQX_NODE__COOKIE: ${EMQX_NODE_COOKIE}
@@ -36,6 +42,12 @@ services:
     container_name: emqx2
     hostname: emqx2.mqtt.local
     restart: always
+    healthcheck:
+      test: ["CMD", "/opt/emqx/bin/emqx", "ctl", "status"]
+      interval: 30s
+      timeout: 25s
+      retries: 5
+      start_period: 60s
     environment:
       EMQX_NODE__NAME: emqx@emqx2.mqtt.local
       EMQX_NODE__COOKIE: ${EMQX_NODE_COOKIE}
@@ -68,6 +80,12 @@ services:
     container_name: emqx3
     hostname: emqx3.mqtt.local
     restart: always
+    healthcheck:
+      test: ["CMD", "/opt/emqx/bin/emqx", "ctl", "status"]
+      interval: 30s
+      timeout: 25s
+      retries: 5
+      start_period: 60s
     environment:
       EMQX_NODE__NAME: emqx@emqx3.mqtt.local
       EMQX_NODE__COOKIE: ${EMQX_NODE_COOKIE}

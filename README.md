@@ -64,6 +64,14 @@ Make sure your local `.env` uses the same values for `EMQX_CLUSTER_STATIC_SEEDS`
 docker compose up -d
 ```
 
+Check container health:
+
+```bash
+docker compose ps
+```
+
+Each node now includes a Docker health check that runs `emqx ctl status`.
+
 Dashboard URLs:
 
 - `http://localhost:18083`
@@ -73,6 +81,28 @@ Dashboard URLs:
 Default dashboard login comes from your local `.env`.
 
 Set `EMQX_DASHBOARD_DEFAULT_USERNAME` and `EMQX_DASHBOARD_DEFAULT_PASSWORD` there before starting the cluster.
+
+## Monitoring and logs
+
+For an external MQTT smoke test, use a subscriber against your public DNS name:
+
+```bash
+mosquitto_sub -h stage-mqttcluster.1984.rocks -u admin -P stage9876 -t "test/topic" -v
+```
+
+Then publish from another terminal:
+
+```bash
+mosquitto_pub -h stage-mqttcluster.1984.rocks -u admin -P stage9876 -t "test/topic" -m "hello"
+```
+
+EMQX container logs do not show every published MQTT message by default, so not seeing publish payloads in `docker logs` is expected.
+
+`docker logs` is useful for broker startup, auth failures, listener errors, and cluster problems. To inspect message traffic, use one of these approaches:
+
+- subscribe with `mosquitto_sub`
+- enable EMQX trace for a specific client or topic in the dashboard
+- use EMQX metrics/dashboard views for connection and message counters
 
 ## MQTT user authentication
 
