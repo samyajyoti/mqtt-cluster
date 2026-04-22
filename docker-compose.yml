@@ -2,10 +2,10 @@ services:
   emqx1:
     image: ${EMQX_IMAGE}
     container_name: emqx1
-    hostname: emqx1
+    hostname: emqx1.mqtt.local
     restart: always
     environment:
-      EMQX_NODE__NAME: emqx@emqx1
+      EMQX_NODE__NAME: emqx@emqx1.mqtt.local
       EMQX_NODE__COOKIE: ${EMQX_NODE_COOKIE}
       EMQX_CLUSTER__DISCOVERY_STRATEGY: static
       EMQX_CLUSTER__STATIC__SEEDS: "${EMQX_CLUSTER_STATIC_SEEDS}"
@@ -18,7 +18,9 @@ services:
       EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__KEYFILE: /opt/emqx/etc/certs/key.pem
       EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__VERIFY: verify_none
     networks:
-      - mqtt-net
+      mqtt-net:
+        aliases:
+          - emqx1.mqtt.local
     ports:
       - "${EMQX1_MQTT_PORT}:1883"
       - "${EMQX1_MQTTS_PORT}:8883"
@@ -32,10 +34,10 @@ services:
   emqx2:
     image: ${EMQX_IMAGE}
     container_name: emqx2
-    hostname: emqx2
+    hostname: emqx2.mqtt.local
     restart: always
     environment:
-      EMQX_NODE__NAME: emqx@emqx2
+      EMQX_NODE__NAME: emqx@emqx2.mqtt.local
       EMQX_NODE__COOKIE: ${EMQX_NODE_COOKIE}
       EMQX_CLUSTER__DISCOVERY_STRATEGY: static
       EMQX_CLUSTER__STATIC__SEEDS: "${EMQX_CLUSTER_STATIC_SEEDS}"
@@ -48,7 +50,9 @@ services:
       EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__KEYFILE: /opt/emqx/etc/certs/key.pem
       EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__VERIFY: verify_none
     networks:
-      - mqtt-net
+      mqtt-net:
+        aliases:
+          - emqx2.mqtt.local
     ports:
       - "${EMQX2_MQTT_PORT}:1883"
       - "${EMQX2_MQTTS_PORT}:8883"
@@ -62,10 +66,10 @@ services:
   emqx3:
     image: ${EMQX_IMAGE}
     container_name: emqx3
-    hostname: emqx3
+    hostname: emqx3.mqtt.local
     restart: always
     environment:
-      EMQX_NODE__NAME: emqx@emqx3
+      EMQX_NODE__NAME: emqx@emqx3.mqtt.local
       EMQX_NODE__COOKIE: ${EMQX_NODE_COOKIE}
       EMQX_CLUSTER__DISCOVERY_STRATEGY: static
       EMQX_CLUSTER__STATIC__SEEDS: "${EMQX_CLUSTER_STATIC_SEEDS}"
@@ -78,7 +82,9 @@ services:
       EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__KEYFILE: /opt/emqx/etc/certs/key.pem
       EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__VERIFY: verify_none
     networks:
-      - mqtt-net
+      mqtt-net:
+        aliases:
+          - emqx3.mqtt.local
     ports:
       - "${EMQX3_MQTT_PORT}:1883"
       - "${EMQX3_MQTTS_PORT}:8883"
