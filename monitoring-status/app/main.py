@@ -1,4 +1,6 @@
 import os
+import threading
+import time
 from dataclasses import dataclass
 from typing import Any
 from urllib.parse import quote
@@ -13,6 +15,15 @@ TIMEOUT_SECONDS = float(os.getenv("MONITOR_TIMEOUT_SECONDS", "5"))
 APP_TITLE = os.getenv("STATUS_PAGE_TITLE", "MQTT Cluster Status")
 EMQX_USERNAME = os.getenv("EMQX_DASHBOARD_USERNAME", "")
 EMQX_PASSWORD = os.getenv("EMQX_DASHBOARD_PASSWORD", "")
+SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL", "").strip()
+SLACK_ALERTS_ENABLED = (
+    os.getenv("SLACK_ALERTS_ENABLED", "false").strip().lower() == "true"
+)
+ALERT_POLL_INTERVAL_SECONDS = int(os.getenv("ALERT_POLL_INTERVAL_SECONDS", "60"))
+ALERT_COOLDOWN_SECONDS = int(os.getenv("ALERT_COOLDOWN_SECONDS", "900"))
+SLACK_SEND_RECOVERY = (
+    os.getenv("SLACK_SEND_RECOVERY", "true").strip().lower() == "true"
+)
 
 NODE_URLS = [
     item.strip().rstrip("/")
@@ -39,6 +50,12 @@ class EndpointStatus:
 
 templates = Jinja2Templates(directory="/app/templates")
 app = FastAPI(title=APP_TITLE)
+STATUS_LOCK = threading.Lock()
+STATUS_CACHE: dict[str, Any] | None = None
+ALERT_STATE = {
+    "last_severity": None,
+    "last_sent_at": 0.0,
+}
 
 
 def endpoint_label(base_url: str) -> str:
@@ -142,6 +159,10 @@ def load_endpoint_status(base_url: str) -> EndpointStatus:
         )
 
 
+def now_seconds() -> float:
+    return time.time()
+
+
 def collect_status() -> dict[str, Any]:
     endpoints = [load_endpoint_status(base_url) for base_url in NODE_URLS]
     healthy_endpoints = sum(1 for endpoint in endpoints if endpoint.cluster_consistent)
@@ -179,9 +200,94 @@ def collect_status() -> dict[str, Any]:
     }
 
 
+def build_slack_text(payload: dict[str, Any]) -> str:
+    overall = payload["overall"]
+    lines = [
+        f"*{APP_TITLE}*",
+        f"Severity: `{overall['severity']}`",
+        overall["message"],
+    ]
+
+    for endpoint in payload["endpoints"]:
+        lines.append(
+            f"- `{endpoint.label}`: {endpoint.severity} - {endpoint.message}"
+        )
+
+    return "\n".join(lines)
+
+
+def send_slack_alert(payload: dict[str, Any]) -> None:
+    if not (SLACK_ALERTS_ENABLED and SLACK_WEBHOOK_URL):
+        return
+
+    response = requests.post(
+        SLACK_WEBHOOK_URL,
+        json={"text": build_slack_text(payload)},
+        timeout=TIMEOUT_SECONDS,
+    )
+    response.raise_for_status()
+
+
+def maybe_send_alert(payload: dict[str, Any]) -> None:
+    severity = payload["overall"]["severity"]
+    last_severity = ALERT_STATE["last_severity"]
+    last_sent_at = ALERT_STATE["last_sent_at"]
+    current_time = now_seconds()
+
+    should_send = False
+
+    if severity in {"warn", "error"}:
+        if severity != last_severity:
+            should_send = True
+        elif current_time - last_sent_at >= ALERT_COOLDOWN_SECONDS:
+            should_send = True
+    elif severity == "ok" and last_severity in {"warn", "error"} and SLACK_SEND_RECOVERY:
+        should_send = True
+
+    if should_send:
+        send_slack_alert(payload)
+        ALERT_STATE["last_sent_at"] = current_time
+
+    ALERT_STATE["last_severity"] = severity
+
+
+def refresh_status_cache() -> dict[str, Any]:
+    payload = collect_status()
+    with STATUS_LOCK:
+        global STATUS_CACHE
+        STATUS_CACHE = payload
+    return payload
+
+
+def get_cached_status() -> dict[str, Any]:
+    with STATUS_LOCK:
+        cached = STATUS_CACHE
+    if cached is not None:
+        return cached
+    return refresh_status_cache()
+
+
+def alert_loop() -> None:
+    while True:
+        try:
+            payload = refresh_status_cache()
+            maybe_send_alert(payload)
+        except Exception:
+            # Keep the monitor loop alive even if a single poll fails.
+            pass
+        time.sleep(ALERT_POLL_INTERVAL_SECONDS)
+
+
+@app.on_event("startup")
+def startup_event() -> None:
+    refresh_status_cache()
+    thread = threading.Thread(target=alert_loop, daemon=True)
+    thread.start()
+
+
 @app.get("/")
 def status_page(request: Request):
-    payload = collect_status()
+    payload = get_cached_status()
     return templates.TemplateResponse(
         request=request,
         name="status.html",
@@ -191,7 +297,7 @@ def status_page(request: Request):
 
 @app.get("/api/status")
 def status_api():
-    payload = collect_status()
+    payload = get_cached_status()
     return JSONResponse(
         {
             "title": payload["title"],
