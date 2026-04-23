@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title }}</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f172a;
+        --panel: #111827;
+        --panel-border: #1f2937;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --ok: #16a34a;
+        --warn: #d97706;
+        --error: #dc2626;
+      }
+
+      body {
+        margin: 0;
+        padding: 24px;
+        font-family: Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      h1, h2 {
+        margin-top: 0;
+      }
+
+      .summary,
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+
+      .ok {
+        background: rgba(22, 163, 74, 0.18);
+        color: #86efac;
+      }
+
+      .warn {
+        background: rgba(217, 119, 6, 0.18);
+        color: #fdba74;
+      }
+
+      .error {
+        background: rgba(220, 38, 38, 0.18);
+        color: #fca5a5;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+      }
+
+      th,
+      td {
+        padding: 10px 8px;
+        border-bottom: 1px solid var(--panel-border);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .small {
+        color: var(--muted);
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="summary">
+      <h1>{{ title }}</h1>
+      <p>
+        <span class="badge {{ overall.severity }}">{{ overall.severity }}</span>
+      </p>
+      <p>{{ overall.message }}</p>
+      <p class="small">Refresh the page to run a new cluster check.</p>
+    </div>
+
+    <div class="grid">
+      {% for endpoint in endpoints %}
+      <div class="panel">
+        <h2>{{ endpoint.label }}</h2>
+        <p>
+          <span class="badge {{ endpoint.severity }}">{{ endpoint.severity }}</span>
+        </p>
+        <p>{{ endpoint.message }}</p>
+        <p class="small">{{ endpoint.base_url }}</p>
+        <p class="small">
+          Nodes seen: {{ endpoint.node_count }}/{{ endpoint.expected_nodes }}
+        </p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="panel">
+      <h2>Cluster Nodes</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Node</th>
+            <th>Status</th>
+            <th>Role</th>
+            <th>Connections</th>
+            <th>Topics</th>
+            <th>Messages</th>
+            <th>Memory</th>
+            <th>Auth Denied</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for node in nodes %}
+          <tr>
+            <td>{{ node.name }}</td>
+            <td>{{ node.status }}</td>
+            <td>{{ node.role }}</td>
+            <td>{{ node.live_connections }} live / {{ node.connections }} total</td>
+            <td>{{ node.topics }} topics / {{ node.subscriptions }} subscriptions</td>
+            <td>{{ node.received_messages }} in / {{ node.sent_messages }} out</td>
+            <td>{{ node.memory_used }} / {{ node.memory_total }}</td>
+            <td>
+              {{ node.auth_failures }} auth failures /
+              {{ node.authorization_denied }} denied
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

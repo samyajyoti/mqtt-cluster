@@ -1,0 +1,17 @@
+services:
+  status-page:
+    build:
+      context: ./app
+    container_name: mqtt-status-page
+    restart: always
+    env_file:
+      - ./.env
+    ports:
+      - "${STATUS_PAGE_PORT}:8088"
+    networks:
+      - emqx-monitor
+
+networks:
+  emqx-monitor:
+    external: true
+    name: ${EMQX_DOCKER_NETWORK}
