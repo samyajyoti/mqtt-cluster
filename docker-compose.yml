@@ -18,6 +18,11 @@ services:
       EMQX_ALLOW_ANONYMOUS: "false"
       EMQX_DASHBOARD__DEFAULT_USERNAME: ${EMQX_DASHBOARD_DEFAULT_USERNAME}
       EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD_DEFAULT_PASSWORD}
+      EMQX_LOG__TO: both
+      EMQX_LOG__CONSOLE__LEVEL: debug
+      EMQX_LOG__FILE__ENABLE: "true"
+      EMQX_LOG__FILE__LEVEL: debug
+      EMQX_LOG__FILE__PATH: /opt/emqx/log/emqx.log
       EMQX_LISTENERS__SSL__DEFAULT__BIND: 0.0.0.0:8883
       EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__VERSIONS: '["tlsv1.2"]'
       EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__CERTFILE: /opt/emqx/etc/certs/cert.pem
@@ -36,6 +41,7 @@ services:
       - ./certs/${MQTT_SSL_CERT_FILE}:/opt/emqx/etc/certs/cert.pem:ro
       - ./certs/${MQTT_SSL_KEY_FILE}:/opt/emqx/etc/certs/key.pem:ro
       - emqx1-data:/opt/emqx/data
+      - ./logs/emqx1:/opt/emqx/log
 
   emqx2:
     image: ${EMQX_IMAGE}
@@ -56,6 +62,11 @@ services:
       EMQX_ALLOW_ANONYMOUS: "false"
       EMQX_DASHBOARD__DEFAULT_USERNAME: ${EMQX_DASHBOARD_DEFAULT_USERNAME}
       EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD_DEFAULT_PASSWORD}
+      EMQX_LOG__TO: both
+      EMQX_LOG__CONSOLE__LEVEL: debug
+      EMQX_LOG__FILE__ENABLE: "true"
+      EMQX_LOG__FILE__LEVEL: debug
+      EMQX_LOG__FILE__PATH: /opt/emqx/log/emqx.log
       EMQX_LISTENERS__SSL__DEFAULT__BIND: 0.0.0.0:8883
       EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__VERSIONS: '["tlsv1.2"]'
       EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__CERTFILE: /opt/emqx/etc/certs/cert.pem
@@ -74,6 +85,7 @@ services:
       - ./certs/${MQTT_SSL_CERT_FILE}:/opt/emqx/etc/certs/cert.pem:ro
       - ./certs/${MQTT_SSL_KEY_FILE}:/opt/emqx/etc/certs/key.pem:ro
       - emqx2-data:/opt/emqx/data
+      - ./logs/emqx2:/opt/emqx/log
 
   emqx3:
     image: ${EMQX_IMAGE}
@@ -94,6 +106,11 @@ services:
       EMQX_ALLOW_ANONYMOUS: "false"
       EMQX_DASHBOARD__DEFAULT_USERNAME: ${EMQX_DASHBOARD_DEFAULT_USERNAME}
       EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD_DEFAULT_PASSWORD}
+      EMQX_LOG__TO: both
+      EMQX_LOG__CONSOLE__LEVEL: debug
+      EMQX_LOG__FILE__ENABLE: "true"
+      EMQX_LOG__FILE__LEVEL: debug
+      EMQX_LOG__FILE__PATH: /opt/emqx/log/emqx.log
       EMQX_LISTENERS__SSL__DEFAULT__BIND: 0.0.0.0:8883
       EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__VERSIONS: '["tlsv1.2"]'
       EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__CERTFILE: /opt/emqx/etc/certs/cert.pem
@@ -112,6 +129,7 @@ services:
       - ./certs/${MQTT_SSL_CERT_FILE}:/opt/emqx/etc/certs/cert.pem:ro
       - ./certs/${MQTT_SSL_KEY_FILE}:/opt/emqx/etc/certs/key.pem:ro
       - emqx3-data:/opt/emqx/data
+      - ./logs/emqx3:/opt/emqx/log
 
 networks:
   mqtt-net:
