@@ -33,8 +33,8 @@ services:
         aliases:
           - emqx1.mqtt.local
     ports:
-      - "127.0.0.1:${EMQX1_MQTT_PORT}:1883"
-      - "127.0.0.1:${EMQX1_MQTTS_PORT}:8883"
+      - "${EMQX1_MQTT_PORT}:1883"
+      - "${EMQX1_MQTTS_PORT}:8883"
       - "${EMQX1_WS_PORT}:8083"
       - "${EMQX1_DASHBOARD_PORT}:18083"
     volumes:
@@ -77,8 +77,8 @@ services:
         aliases:
           - emqx2.mqtt.local
     ports:
-      - "127.0.0.1:${EMQX2_MQTT_PORT}:1883"
-      - "127.0.0.1:${EMQX2_MQTTS_PORT}:8883"
+      - "${EMQX2_MQTT_PORT}:1883"
+      - "${EMQX2_MQTTS_PORT}:8883"
       - "${EMQX2_WS_PORT}:8083"
       - "${EMQX2_DASHBOARD_PORT}:18083"
     volumes:
@@ -121,8 +121,8 @@ services:
         aliases:
           - emqx3.mqtt.local
     ports:
-      - "127.0.0.1:${EMQX3_MQTT_PORT}:1883"
-      - "127.0.0.1:${EMQX3_MQTTS_PORT}:8883"
+      - "${EMQX3_MQTT_PORT}:1883"
+      - "${EMQX3_MQTTS_PORT}:8883"
       - "${EMQX3_WS_PORT}:8083"
       - "${EMQX3_DASHBOARD_PORT}:18083"
     volumes:
